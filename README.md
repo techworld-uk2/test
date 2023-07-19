@@ -1,3 +1,5 @@
+vba
+Copy code
 Sub RenameDuplicates()
     Dim rng As Range
     Dim cell As Range
@@ -36,3 +38,4 @@ Sub RenameDuplicates()
     Set dict = Nothing
     Set rng = Nothing
 End Sub
+To use this code, follow these steps:
