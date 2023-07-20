@@ -3,7 +3,7 @@ Sub ChangeHeaderSequence()
     Dim targetWorkbook As Workbook
     Dim sourceSheet As Worksheet
     Dim targetSheet As Worksheet
-    Dim sourceHeaderRange As Range
+    Dim sourceColumn As Range
     Dim targetHeaderRange As Range
     Dim sourceCell As Range
     Dim targetCell As Range
@@ -13,22 +13,20 @@ Sub ChangeHeaderSequence()
     Set sourceWorkbook = Workbooks.Open("C:\Path\To\SourceWorkbook.xlsx")
     
     ' Set the target workbook (where the header sequence will be changed)
-    Set targetWorkbook = Workbooks.Open("C:\Path\To\TargetWorkbook.xlsx")
+    Set targetWorkbook = ThisWorkbook ' or specify the target workbook path
     
-    ' Set the source sheet (where the desired header sequence is defined)
+    ' Set the source sheet and target sheet
     Set sourceSheet = sourceWorkbook.Sheets("SourceSheet")
-    
-    ' Set the target sheet (where the header sequence will be changed)
     Set targetSheet = targetWorkbook.Sheets("TargetSheet")
     
-    ' Set the source header range (assuming it starts from cell A1)
-    Set sourceHeaderRange = sourceSheet.Range("A1").CurrentRegion.Rows(1)
+    ' Set the source column range (assuming it starts from cell A1)
+    Set sourceColumn = sourceSheet.Range("A1:A" & sourceSheet.Cells(Rows.Count, 1).End(xlUp).Row)
     
     ' Set the target header range (assuming it starts from cell A1)
     Set targetHeaderRange = targetSheet.Range("A1").CurrentRegion.Rows(1)
     
-    ' Loop through each cell in the source header range
-    For Each sourceCell In sourceHeaderRange
+    ' Loop through each cell in the source column range
+    For Each sourceCell In sourceColumn
         ' Get the header name from the source cell
         headerName = sourceCell.Value
         
@@ -42,13 +40,12 @@ Sub ChangeHeaderSequence()
         End If
     Next sourceCell
     
-    ' Clear the source header range (optional, if needed)
-    sourceHeaderRange.ClearContents
+    ' Close the source workbook without saving changes
+    sourceWorkbook.Close SaveChanges:=False
+    
+    ' Clear the source column range (optional, if needed)
+    sourceColumn.ClearContents
     
     ' Clear the target header range (optional, if needed)
     targetHeaderRange.ClearContents
-    
-    ' Save and close the workbooks
-    sourceWorkbook.Close SaveChanges:=False
-    targetWorkbook.Close SaveChanges:=True
 End Sub
