@@ -1,3 +1,5 @@
+certainly! Here's an example of VBA code that renames duplicate values in a row using a sequential format:
+
 vba
 Copy code
 Sub RenameDuplicates()
@@ -7,8 +9,8 @@ Sub RenameDuplicates()
     Dim newName As String
     Dim counter As Integer
     
-    ' Set the range to the desired column
-    Set rng = Range("A1:A" & Cells(Rows.Count, "A").End(xlUp).Row)
+    ' Set the range to the desired row
+    Set rng = Range("A1:H1") ' Adjust the range to match your specific row
     
     ' Create a dictionary to store the count of each value
     Set dict = CreateObject("Scripting.Dictionary")
@@ -39,3 +41,10 @@ Sub RenameDuplicates()
     Set rng = Nothing
 End Sub
 To use this code, follow these steps:
+
+Press Alt+F11 to open the VBA Editor in Excel.
+Insert a new module by clicking on Insert > Module.
+Copy and paste the code into the module.
+Modify the range in the Set rng line to match the row you want to process (e.g., "A1:H1").
+Run the code by pressing F5 or by clicking on Run > Run Sub/UserForm.
+The code will iterate through the specified row, find duplicate values, and rename them with a sequential number appended to the original value. For example, if the original row contains "Apple," the duplicates will be renamed as "Apple_2", "Apple_3", and so on.
