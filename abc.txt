@@ -1,50 +1,54 @@
-certainly! Here's an example of VBA code that renames duplicate values in a row using a sequential format:
-
-vba
-Copy code
-Sub RenameDuplicates()
-    Dim rng As Range
-    Dim cell As Range
-    Dim dict As Object
-    Dim newName As String
-    Dim counter As Integer
+Sub ChangeHeaderSequence()
+    Dim sourceWorkbook As Workbook
+    Dim targetWorkbook As Workbook
+    Dim sourceSheet As Worksheet
+    Dim targetSheet As Worksheet
+    Dim sourceHeaderRange As Range
+    Dim targetHeaderRange As Range
+    Dim sourceCell As Range
+    Dim targetCell As Range
+    Dim headerName As String
     
-    ' Set the range to the desired row
-    Set rng = Range("A1:H1") ' Adjust the range to match your specific row
+    ' Set the source workbook (where the desired header sequence is defined)
+    Set sourceWorkbook = Workbooks.Open("C:\Path\To\SourceWorkbook.xlsx")
     
-    ' Create a dictionary to store the count of each value
-    Set dict = CreateObject("Scripting.Dictionary")
+    ' Set the target workbook (where the header sequence will be changed)
+    Set targetWorkbook = Workbooks.Open("C:\Path\To\TargetWorkbook.xlsx")
     
-    ' Loop through each cell in the range
-    For Each cell In rng
-        If Not IsEmpty(cell) Then
-            ' Check if the value already exists in the dictionary
-            If dict.Exists(cell.Value) Then
-                ' Increment the counter for the duplicate value
-                dict(cell.Value) = dict(cell.Value) + 1
-                
-                ' Generate the new name with a sequential number
-                counter = dict(cell.Value)
-                newName = cell.Value & "_" & counter
-                
-                ' Rename the cell with the new name
-                cell.Value = newName
-            Else
-                ' Add the value to the dictionary with a count of 1
-                dict.Add cell.Value, 1
-            End If
+    ' Set the source sheet (where the desired header sequence is defined)
+    Set sourceSheet = sourceWorkbook.Sheets("SourceSheet")
+    
+    ' Set the target sheet (where the header sequence will be changed)
+    Set targetSheet = targetWorkbook.Sheets("TargetSheet")
+    
+    ' Set the source header range (assuming it starts from cell A1)
+    Set sourceHeaderRange = sourceSheet.Range("A1").CurrentRegion.Rows(1)
+    
+    ' Set the target header range (assuming it starts from cell A1)
+    Set targetHeaderRange = targetSheet.Range("A1").CurrentRegion.Rows(1)
+    
+    ' Loop through each cell in the source header range
+    For Each sourceCell In sourceHeaderRange
+        ' Get the header name from the source cell
+        headerName = sourceCell.Value
+        
+        ' Find the corresponding cell in the target header range with the same name
+        Set targetCell = targetHeaderRange.Find(headerName, LookIn:=xlValues, LookAt:=xlWhole)
+        
+        ' If a matching cell is found, change its position in the target header range
+        If Not targetCell Is Nothing Then
+            targetCell.Cut
+            targetHeaderRange.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
         End If
-    Next cell
+    Next sourceCell
     
-    ' Clean up objects
-    Set dict = Nothing
-    Set rng = Nothing
-End Sub
-To use this code, follow these steps:
-
-Press Alt+F11 to open the VBA Editor in Excel.
-Insert a new module by clicking on Insert > Module.
-Copy and paste the code into the module.
-Modify the range in the Set rng line to match the row you want to process (e.g., "A1:H1").
-Run the code by pressing F5 or by clicking on Run > Run Sub/UserForm.
-The code will iterate through the specified row, find duplicate values, and rename them with a sequential number appended to the original value. For example, if the original row contains "Apple," the duplicates will be renamed as "Apple_2", "Apple_3", and so on.
+    ' Clear the source header range (optional, if needed)
+    sourceHeaderRange.ClearContents
+    
+    ' Clear the target header range (optional, if needed)
+    targetHeaderRange.ClearContents
+    
+    ' Save and close the workbooks
+    sourceWorkbook.Close SaveChanges:=False
+    targetWorkbook.Close SaveChanges:=True
+End Sub
