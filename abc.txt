@@ -1,51 +1,45 @@
-Sub ChangeHeaderSequence()
-    Dim sourceWorkbook As Workbook
-    Dim targetWorkbook As Workbook
-    Dim sourceSheet As Worksheet
-    Dim targetSheet As Worksheet
+Sub ReorderColumnsBasedOnValues()
+    Dim sourceWB As Workbook
+    Dim targetWB As Workbook
+    Dim sourceWS As Worksheet
+    Dim targetWS As Worksheet
     Dim sourceColumn As Range
-    Dim targetHeaderRange As Range
-    Dim sourceCell As Range
-    Dim targetCell As Range
-    Dim headerName As String
+    Dim targetColumn As Range
+    Dim sourceColumnValue As Variant
+    Dim targetColumnValue As Variant
+    Dim targetColumnPosition As Long
     
-    ' Set the source workbook (where the desired header sequence is defined)
-    Set sourceWorkbook = Workbooks.Open("C:\Path\To\SourceWorkbook.xlsx")
+    ' Update these file paths with the actual file paths for your source and target workbooks
+    Set sourceWB = Workbooks.Open("C:\path\to\source_workbook.xlsx")
+    Set targetWB = Workbooks.Open("C:\path\to\target_workbook.xlsx")
     
-    ' Set the target workbook (where the header sequence will be changed)
-    Set targetWorkbook = ThisWorkbook ' or specify the target workbook path
+    ' Replace "Sheet1" with the actual name of the worksheet containing the source column values
+    Set sourceWS = sourceWB.Worksheets("Sheet1")
+    ' Replace "Sheet1" with the actual name of the worksheet where the columns need to be reordered
+    Set targetWS = targetWB.Worksheets("Sheet1")
     
-    ' Set the source sheet and target sheet
-    Set sourceSheet = sourceWorkbook.Sheets("SourceSheet")
-    Set targetSheet = targetWorkbook.Sheets("TargetSheet")
-    
-    ' Set the source column range (assuming it starts from cell A1)
-    Set sourceColumn = sourceSheet.Range("A1:A" & sourceSheet.Cells(Rows.Count, 1).End(xlUp).Row)
-    
-    ' Set the target header range (assuming it starts from cell A1)
-    Set targetHeaderRange = targetSheet.Range("A1").CurrentRegion.Rows(1)
-    
-    ' Loop through each cell in the source column range
-    For Each sourceCell In sourceColumn
-        ' Get the header name from the source cell
-        headerName = sourceCell.Value
+    ' Loop through the columns in the source workbook
+    For Each sourceColumn In sourceWS.UsedRange.Columns
+        ' Assuming the values are in the first row of the source column (change 1 to a different row number if needed)
+        sourceColumnValue = sourceColumn.Cells(1).Value
         
-        ' Find the corresponding cell in the target header range with the same name
-        Set targetCell = targetHeaderRange.Find(headerName, LookIn:=xlValues, LookAt:=xlWhole)
+        ' Find the corresponding column in the target workbook based on the value
+        Set targetColumn = targetWS.Rows(1).Find(What:=sourceColumnValue, LookIn:=xlValues, LookAt:=xlWhole)
         
-        ' If a matching cell is found, change its position in the target header range
-        If Not targetCell Is Nothing Then
-            targetCell.Cut
-            targetHeaderRange.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+        ' If the target column is found, get its position and move it to the same position as the source column
+        If Not targetColumn Is Nothing Then
+            targetColumnPosition = targetColumn.Column
+            targetColumn.EntireColumn.Cut
+            targetWS.Columns(sourceColumn.Column).Insert Shift:=xlToRight
+            Application.CutCopyMode = False
+        Else
+            ' Handle the case when the source column value is not found in the target workbook (optional)
+            ' You may choose to skip the column or handle it differently based on your requirements.
+            MsgBox "Column with value '" & sourceColumnValue & "' not found in the target workbook."
         End If
-    Next sourceCell
+    Next sourceColumn
     
-    ' Close the source workbook without saving changes
-    sourceWorkbook.Close SaveChanges:=False
-    
-    ' Clear the source column range (optional, if needed)
-    sourceColumn.ClearContents
-    
-    ' Clear the target header range (optional, if needed)
-    targetHeaderRange.ClearContents
-End Sub
+    ' Save and close both workbooks
+    sourceWB.Close SaveChanges:=False
+    targetWB.Close SaveChanges:=True
+End Sub
