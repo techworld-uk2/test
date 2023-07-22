@@ -1,41 +1,70 @@
-vba
-Copy code
-Sub RenameDuplicates()
-    Dim rng As Range
-    Dim cell As Range
-    Dim dict As Object
-    Dim newName As String
-    Dim counter As Integer
+Sub RearrangeColumnsBasedOnValues()
+    Dim sourceWorkbook As Workbook
+    Dim destWorkbook As Workbook
+    Dim sourceSheet As Worksheet
+    Dim destSheet As Worksheet
+    Dim sourceColumn As Range
+    Dim destColumn As Range
+    Dim sourceValue As Variant
+    Dim targetValue As Variant
+    Dim targetPosition As Integer
     
-    ' Set the range to the desired column
-    Set rng = Range("A1:A" & Cells(Rows.Count, "A").End(xlUp).Row)
+    ' Set the file paths for both workbooks
+    Dim sourceFilePath As String
+    Dim destFilePath As String
+    sourceFilePath = "C:\Path\To\Source\Workbook.xlsx" ' Replace with the actual path
+    destFilePath = "C:\Path\To\Destination\Workbook.xlsx" ' Replace with the actual path
     
-    ' Create a dictionary to store the count of each value
-    Set dict = CreateObject("Scripting.Dictionary")
+    ' Set the sheet names and column numbers
+    Dim sourceSheetName As String
+    Dim destSheetName As String
+    Dim sourceColumnNumber As Integer
+    Dim destColumnNumber As Integer
+    sourceSheetName = "SourceSheet" ' Replace with the actual source sheet name
+    destSheetName = "DestinationSheet" ' Replace with the actual destination sheet name
+    sourceColumnNumber = 1 ' Replace with the column number of the values in the source workbook
+    destColumnNumber = 1 ' Replace with the column number where the data will be pasted in the destination workbook
     
-    ' Loop through each cell in the range
-    For Each cell In rng
-        If Not IsEmpty(cell) Then
-            ' Check if the value already exists in the dictionary
-            If dict.Exists(cell.Value) Then
-                ' Increment the counter for the duplicate value
-                dict(cell.Value) = dict(cell.Value) + 1
-                
-                ' Generate the new name with a sequential number
-                counter = dict(cell.Value)
-                newName = cell.Value & "_" & counter
-                
-                ' Rename the cell with the new name
-                cell.Value = newName
-            Else
-                ' Add the value to the dictionary with a count of 1
-                dict.Add cell.Value, 1
+    ' Open both workbooks
+    Set sourceWorkbook = Workbooks.Open(sourceFilePath)
+    Set destWorkbook = Workbooks.Open(destFilePath)
+    
+    ' Set the source and destination sheets
+    Set sourceSheet = sourceWorkbook.Sheets(sourceSheetName)
+    Set destSheet = destWorkbook.Sheets(destSheetName)
+    
+    ' Loop through the values in the source column
+    For Each sourceColumn In sourceSheet.Columns(sourceColumnNumber).Cells
+        sourceValue = sourceColumn.Value
+        targetPosition = 0
+        
+        ' Find the corresponding column in the destination sheet
+        For Each destColumn In destSheet.Rows(1).Cells
+            targetValue = destColumn.Value
+            If targetValue = sourceValue Then
+                targetPosition = destColumn.Column
+                Exit For
             End If
+        Next destColumn
+        
+        ' Cut and paste the column to the desired position
+        If targetPosition > 0 Then
+            sourceSheet.Columns(sourceColumnNumber).Cut
+            destSheet.Columns(targetPosition).Insert Shift:=xlToRight
         End If
-    Next cell
+    Next sourceColumn
+    
+    ' Save and close workbooks
+    sourceWorkbook.Close SaveChanges:=False
+    destWorkbook.Close SaveChanges:=True
     
     ' Clean up objects
-    Set dict = Nothing
-    Set rng = Nothing
+    Set sourceColumn = Nothing
+    Set destColumn = Nothing
+    Set sourceSheet = Nothing
+    Set destSheet = Nothing
+    Set sourceWorkbook = Nothing
+    Set destWorkbook = Nothing
+    
+    MsgBox "Columns rearranged based on values successfully!", vbInformation
 End Sub
-To use this code, follow these steps:
