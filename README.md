@@ -1,12 +1,16 @@
-Sub RearrangeColumnsBasedOnMapping()
+vba code ..
+
+
+Sub RearrangeColumnsBasedOnBColumn()
+
     Dim sourceWorkbook As Workbook
     Dim destWorkbook As Workbook
     Dim sourceSheet As Worksheet
     Dim destSheet As Worksheet
-    Dim mappingRange As Range
+    Dim sourceData As Variant
     Dim sourceColumn As Range
     Dim destColumn As Range
-    Dim mappingKey As Variant
+    Dim columnOrder As Collection
     Dim targetPosition As Integer
     
     ' Set the file paths for both workbooks
@@ -15,12 +19,11 @@ Sub RearrangeColumnsBasedOnMapping()
     sourceFilePath = "C:\Path\To\Source\Workbook.xlsx" ' Replace with the actual path
     destFilePath = "C:\Path\To\Destination\Workbook.xlsx" ' Replace with the actual path
     
-    ' Set the sheet names and mapping range
+    ' Set the sheet names
     Dim sourceSheetName As String
     Dim destSheetName As String
     sourceSheetName = "SourceSheet" ' Replace with the actual source sheet name
     destSheetName = "DestinationSheet" ' Replace with the actual destination sheet name
-    Set mappingRange = Workbooks("MappingWorkbook.xlsx").Worksheets("MappingSheet").Range("A1:B10") ' Replace with the actual mapping range
     
     ' Open both workbooks
     Set sourceWorkbook = Workbooks.Open(sourceFilePath)
@@ -30,35 +33,41 @@ Sub RearrangeColumnsBasedOnMapping()
     Set sourceSheet = sourceWorkbook.Sheets(sourceSheetName)
     Set destSheet = destWorkbook.Sheets(destSheetName)
     
-    ' Loop through the columns in the source workbook
-    For Each sourceColumn In sourceSheet.UsedRange.Columns
-        ' Get the column value from the mapping
-        mappingKey = Application.Match(sourceColumn.Cells(1).Value, mappingRange.Columns(1), 0)
-        
-        ' If the mapping key is found, get the corresponding target position
-        If Not IsError(mappingKey) Then
-            targetPosition = mappingRange.Cells(mappingKey, 2).Value
-            
-            ' Cut and paste the column to the desired position
-            If targetPosition > 0 Then
-                sourceColumn.Cut
-                destSheet.Columns(targetPosition).Insert Shift:=xlToRight
-            End If
+    ' Read the values in the B column of the source workbook
+    sourceData = sourceSheet.Range("B:B").Value
+    
+    ' Create a collection to store the column order
+    Set columnOrder = New Collection
+    
+    ' Loop through the B column values and store the corresponding column positions in the collection
+    For i = 1 To UBound(sourceData)
+        If Not IsEmpty(sourceData(i, 1)) Then
+            Set sourceColumn = sourceSheet.Columns(i)
+            columnOrder.Add sourceColumn.Column, CStr(sourceData(i, 1))
         End If
-    Next sourceColumn
+    Next i
+    
+    ' Rearrange the columns in the destination workbook based on the column order
+    For i = 1 To columnOrder.Count
+        targetPosition = columnOrder.Item(i)
+        Set destColumn = destSheet.Columns(targetPosition)
+        destColumn.Cut
+        destSheet.Columns(i).Insert Shift:=xlToRight
+    Next i
     
     ' Save and close workbooks
     sourceWorkbook.Close SaveChanges:=False
     destWorkbook.Close SaveChanges:=True
     
     ' Clean up objects
+    Set sourceData = Nothing
     Set sourceColumn = Nothing
     Set destColumn = Nothing
-    Set mappingRange = Nothing
+    Set columnOrder = Nothing
     Set sourceSheet = Nothing
     Set destSheet = Nothing
     Set sourceWorkbook = Nothing
     Set destWorkbook = Nothing
     
-    MsgBox "Columns rearranged based on mapping successfully!", vbInformation
+    MsgBox "Columns rearranged based on B column values successfully!", vbInformation
 End Sub
