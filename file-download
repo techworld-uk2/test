@@ -1,22 +1,43 @@
 from ftplib import FTP
 
+def download_file_with_progress(ftp, remote_file_path, local_file_path):
+    # Get the file size from the server
+    file_size = ftp.size(remote_file_path)
+    
+    # Function to write data and track progress
+    def handle_binary(block):
+        nonlocal downloaded_size
+        downloaded_size += len(block)
+        file.write(block)
+        percent_complete = (downloaded_size / file_size) * 100
+        print(f'Download progress: {percent_complete:.2f}%')
+
+    # Initialize the downloaded size
+    downloaded_size = 0
+    
+    # Open the local file in binary mode and start downloading
+    with open(local_file_path, 'wb') as file:
+        # Use a larger buffer size for faster transfers
+        buffer_size = 8192  # 8 KB buffer size
+        ftp.retrbinary(f'RETR {remote_file_path}', handle_binary, buffer_size)
+    
 # Define FTP server details
 ftp_server = '192.168.0.105'
 ftp_port = 2222  # Replace with your FTP server port
 ftp_user = 'android'
 ftp_password = 'android'
-remote_file_path = 'form123.pdf'
-local_file_path = 'form.pdf'
+remote_file_path = 'kali-linux.7z'
+local_file_path = 'kali-linux.7z'
 
 # Connect to the FTP server on a specific port
 ftp = FTP()
 ftp.set_debuglevel(2)  # Set debug level for verbose output
 ftp.connect(host=ftp_server, port=ftp_port)
 ftp.login(user=ftp_user, passwd=ftp_password)
+ftp.set_pasv(True)  # Enable passive mode
 
-# Open the local file in binary mode and download it
-with open(local_file_path, 'wb') as file:
-    ftp.retrbinary(f'RETR {remote_file_path}', file.write)
+# Download the file with progress tracking
+download_file_with_progress(ftp, remote_file_path, local_file_path)
 
 # Close the connection
 ftp.quit()
