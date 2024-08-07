@@ -1,0 +1,22 @@
+from ftplib import FTP
+
+# Define FTP server details
+ftp_server = '192.168.0.105'
+ftp_port = 2222  # Replace with your FTP server port
+ftp_user = 'android'
+ftp_password = 'android'
+remote_file_path = 'form123.pdf'
+local_file_path = 'form.pdf'
+
+# Connect to the FTP server on a specific port
+ftp = FTP()
+ftp.set_debuglevel(2)  # Set debug level for verbose output
+ftp.connect(host=ftp_server, port=ftp_port)
+ftp.login(user=ftp_user, passwd=ftp_password)
+
+# Open the local file in binary mode and download it
+with open(local_file_path, 'wb') as file:
+    ftp.retrbinary(f'RETR {remote_file_path}', file.write)
+
+# Close the connection
+ftp.quit()
