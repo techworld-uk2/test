@@ -1,1 +1,40 @@
-Hanman
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Base URL
+base_url = "https://webcache.googleusercontent.com/search?q=cache:https://mvnrepository.com/artifact/"
+
+# Load the Excel file
+excel_path = 'C:\\Users\\abhim\\OneDrive\\Documents\\Development\\Python Projects\\SCA\\components.xlsx'  # Replace with your actual file path
+df = pd.read_excel(excel_path, engine='openpyxl')
+
+# Ensure the 'Tester Comments' column is of type string
+df['Tester Comments'] = df['Tester Comments'].astype(str)
+
+# Function to fetch content from a URL
+def fetch_content(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        soup = BeautifulSoup(response.text, 'html.parser')
+        div = soup.find('div', style="align-content: center; background-color: #fff8f8; border: 2px solid #ff1210; padding: 10px ; border-radius: 5px;")
+        if div:
+            content = div.get_text(separator="\n").strip()
+            single_line_content = ' '.join(line.strip() for line in content.split("\n") if line.strip())
+            return single_line_content
+        else:
+            return "Div with the specified style not found."
+    except requests.RequestException as e:
+        return f"Error fetching content: {e}"
+
+# Process each row in the DataFrame
+for index, row in df.iterrows():
+    component = row['Components']
+    url = base_url + component
+    fetched_content = fetch_content(url)
+    df.at[index, 'Tester Comments'] = fetched_content
+    print(fetched_content)
+
+# Save the updated DataFrame back to Excel
+df.to_excel(excel_path, index=False, engine='openpyxl')
