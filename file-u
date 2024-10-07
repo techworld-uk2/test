@@ -24,8 +24,8 @@ ftp_server = '192.168.170.58'
 ftp_port = 2222  # Replace with your FTP server port
 ftp_user = 'android'
 ftp_password = 'android'
-local_file_path = 'DDOS.zip'
-remote_file_path = 'DDOS.zip'
+local_file_path = ''
+remote_file_path = ''
 
 # Connect to the FTP server on a specific port
 ftp = FTP()
