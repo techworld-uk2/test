@@ -1,0 +1,16 @@
+import pandas as pd
+
+# Load the Excel file
+input_file = 'your_input_file.xlsx'  # Replace with your input file name
+output_file = 'filtered_output.xlsx'  # Replace with your desired output file name
+
+# Read the Excel file and specify the sheet name
+df = pd.read_excel(input_file, sheet_name='Advance Search', header=3)  # Set header to skip the first three rows
+
+# Filter the DataFrame for "Open" and "Exception Approved" in the "Status" column
+filtered_df = df[df['Status'].isin(['Open', 'Exception Approved'])]
+
+# Save the filtered DataFrame to a new Excel file
+filtered_df.to_excel(output_file, index=False)
+
+print(f"Filtered data has been saved to '{output_file}'")
