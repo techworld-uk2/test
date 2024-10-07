@@ -1,0 +1,15 @@
+import pandas as pd
+
+# Load the Excel file
+file_path = 'path_to_your_excel_file/Web_Application.xlsx'
+df = pd.read_excel(file_path)
+
+# Prompt the user to enter the Application Name to filter
+application_name = input("Enter the Application Name to filter: ")
+
+# Filter the dataframe based on the Application Name in column A
+filtered_df = df[df['Application Name'] == application_name]
+
+# Display the contents of columns I and M in a table format
+result = filtered_df[['I', 'M']]
+print(result)
