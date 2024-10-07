@@ -15,11 +15,15 @@ password = "your_password"
 ctx_auth = AuthenticationContext(sharepoint_site_url)
 if ctx_auth.acquire_token_for_user(username, password):
     ctx = ClientContext(sharepoint_site_url, ctx_auth)
-    response = ctx.web.get_file_by_server_relative_url(relative_file_url).download()
-    response.raise_for_status()
-
-    # Read the file content into a pandas DataFrame
-    file_content = io.BytesIO(response.content)
+    
+    # Create a BytesIO object to store the downloaded file
+    file_content = io.BytesIO()
+    
+    # Download the file from SharePoint into the BytesIO object
+    file = ctx.web.get_file_by_server_relative_url(relative_file_url).download(file_content).execute_query()
+    
+    # Load the content into a pandas DataFrame
+    file_content.seek(0)  # Reset the pointer to the beginning of the file
     df = pd.read_excel(file_content)
 
     # Prompt the user to enter the Application Name to filter
