@@ -15,14 +15,14 @@ application_name = input("Enter the Application Name to filter: ")
 
 # Check if 'Application Name' is present in the DataFrame
 if 'Application Name' in df.columns:
-    # Filter the dataframe based on the Application Name in column A
+    # Filter the DataFrame based on the Application Name in column A
     filtered_df = df[df['Application Name'] == application_name]
 
-    # Display the contents of columns I and M in a table format
-    if 'I' in df.columns and 'M' in df.columns:
-        result = filtered_df[['I', 'M']]
+    # Display the contents of columns 'Month' and 'Assignee' in a table format
+    if 'Month' in df.columns and 'Assignee' in df.columns:
+        result = filtered_df[['Month', 'Assignee']]
         print(result)
     else:
-        print("Columns 'I' and 'M' are not found in the sheet. Available columns are:", df.columns)
+        print("Columns 'Month' and 'Assignee' are not found in the sheet. Available columns are:", df.columns)
 else:
     print("'Application Name' column is not found in the sheet. Available columns are:", df.columns)
