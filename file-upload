@@ -5,8 +5,8 @@ ftp_server = '192.168.0.105'
 ftp_port = 2222  # Replace with your FTP server port
 ftp_user = 'android'
 ftp_password = 'android'
-file_to_upload = 'form.pdf'
-remote_file_path = 'form123.pdf'
+file_to_upload = ''
+remote_file_path = ''
 
 # Connect to the FTP server on a specific port
 ftp = FTP()
