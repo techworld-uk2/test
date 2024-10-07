@@ -1,15 +1,28 @@
 import pandas as pd
 
-# Load the Excel file
-file_path = 'path_to_your_excel_file/Web_Application.xlsx'
-df = pd.read_excel(file_path)
+# Load the Excel file and specify the sheet name
+file_path = r'C:\Users\c-abhimanyue\Downloads\KPMG-CRISIL-Master-Tracker.xlsx'
+df = pd.read_excel(file_path, sheet_name='Web_Application')
+
+# Print the column names to check for discrepancies
+print("Column names in the file:", df.columns)
+
+# Strip whitespace from column names
+df.columns = df.columns.str.strip()
 
 # Prompt the user to enter the Application Name to filter
 application_name = input("Enter the Application Name to filter: ")
 
-# Filter the dataframe based on the Application Name in column A
-filtered_df = df[df['Application Name'] == application_name]
+# Check if 'Application Name' is present in the DataFrame
+if 'Application Name' in df.columns:
+    # Filter the dataframe based on the Application Name in column A
+    filtered_df = df[df['Application Name'] == application_name]
 
-# Display the contents of columns I and M in a table format
-result = filtered_df[['I', 'M']]
-print(result)
+    # Display the contents of columns I and M in a table format
+    if 'I' in df.columns and 'M' in df.columns:
+        result = filtered_df[['I', 'M']]
+        print(result)
+    else:
+        print("Columns 'I' and 'M' are not found in the sheet. Available columns are:", df.columns)
+else:
+    print("'Application Name' column is not found in the sheet. Available columns are:", df.columns)
