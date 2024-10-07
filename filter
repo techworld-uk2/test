@@ -1,15 +1,35 @@
+from office365.runtime.auth.authentication_context import AuthenticationContext
+from office365.sharepoint.client_context import ClientContext
+import io
 import pandas as pd
 
-# Load the Excel file
-file_path = 'path_to_your_excel_file/Web_Application.xlsx'
-df = pd.read_excel(file_path)
+# SharePoint site and file details
+sharepoint_site_url = "https://yourcompany.sharepoint.com/sites/yoursite"
+relative_file_url = "/sites/yoursite/Shared Documents/Web_Application.xlsx"
 
-# Prompt the user to enter the Application Name to filter
-application_name = input("Enter the Application Name to filter: ")
+# Credentials
+username = "your_email@yourcompany.com"
+password = "your_password"
 
-# Filter the dataframe based on the Application Name in column A
-filtered_df = df[df['Application Name'] == application_name]
+# Authenticate with SharePoint
+ctx_auth = AuthenticationContext(sharepoint_site_url)
+if ctx_auth.acquire_token_for_user(username, password):
+    ctx = ClientContext(sharepoint_site_url, ctx_auth)
+    response = ctx.web.get_file_by_server_relative_url(relative_file_url).download()
+    response.raise_for_status()
 
-# Display the contents of columns I and M in a table format
-result = filtered_df[['I', 'M']]
-print(result)
+    # Read the file content into a pandas DataFrame
+    file_content = io.BytesIO(response.content)
+    df = pd.read_excel(file_content)
+
+    # Prompt the user to enter the Application Name to filter
+    application_name = input("Enter the Application Name to filter: ")
+
+    # Filter the dataframe based on the Application Name in column A
+    filtered_df = df[df['Application Name'] == application_name]
+
+    # Display the contents of columns I and M in a table format
+    result = filtered_df[['I', 'M']]
+    print(result)
+else:
+    print("Authentication failed")
