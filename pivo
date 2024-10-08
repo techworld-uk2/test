@@ -1,0 +1,29 @@
+import pandas as pd
+
+# Load the Excel file
+input_file = 'your_input_file.xlsx'  # Replace with your input file name
+output_file = 'filtered_and_pivot_output.xlsx'  # Replace with your desired output file name
+
+# Read the Excel file and specify the sheet name
+df = pd.read_excel(input_file, sheet_name='Advance Search', header=3)  # Set header to skip the first three rows
+
+# Filter the DataFrame for "Open" and "Past due" in the "Status" column
+# Also, filter to include only rows with positive values in the relevant column
+filtered_df = df[(df['Status'].isin(['Open', 'Past due'])) & (df.select_dtypes(include='number') > 0).all(axis=1)]
+
+# Create a pivot table with the specified columns, rows, and values
+pivot_table = pd.pivot_table(
+    df,
+    values='Application Name',
+    index='Application SPOC',
+    columns='Severity',
+    aggfunc='count',  # Aggregation function to count the occurrences of each Application Name
+    fill_value=0      # Fill missing values with 0
+)
+
+# Save the filtered DataFrame and pivot table to the same Excel file with different sheet names
+with pd.ExcelWriter(output_file) as writer:
+    filtered_df.to_excel(writer, sheet_name='Filtered Data', index=False)
+    pivot_table.to_excel(writer, sheet_name='Pivot Table')
+
+print(f"Filtered data and pivot table have been saved to '{output_file}'")
